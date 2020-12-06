@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Iteration</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <meta name="date" content="2020-12-05" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <link href="libs/font-awesome/css/fontawesome-all.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+
+class: middle, center, middle
+
+# Iteration
+
+&lt;br&gt;&lt;br&gt;.large[Maria C. Ramos| MiR Study Group | 5 Dec 2020]
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;<i class="fas  fa-link "></i>.large[mariacramos.com]
+&lt;br&gt;&lt;br&gt;<i class="fab  fa-twitter "></i>.large[@mariacramosf]
+---
+class: top, left
+
+
+# Outline
+
+* vectors 
+
+* why mapping?
+
+* map()  overview
+
+* map() variations
+
+* map shortcuts
+
+* expressions
+
+* map2()
+
+* pmap()
+
+* invoke_map()
+
+---
+# Vectors 
+.pull-left[
+ ### simple
+ 
+ * non-recursive vectors -every element is a single value and of the same type
+
+
+```r
+mynums &lt;- c(1,2,3) 
+mynums
+```
+
+```
+## [1] 1 2 3
+```
+
+```r
+class(mynums)
+```
+
+```
+## [1] "numeric"
+```
+
+]
+
+.pull-right[
+
+###lists
+
+* Recursive vectors - elements can be anything, even other vectors.
+
+
+```r
+mylist &lt;- list(a = c(1,2,3), 
+               b = c("a", "b", "c"))
+mylist
+```
+
+```
+## $a
+## [1] 1 2 3
+## 
+## $b
+## [1] "a" "b" "c"
+```
+
+```r
+class(mylist)
+```
+
+```
+## [1] "list"
+```
+
+]
+
+---
+
+# purrr package
+
+.center[**Iterate - apply a function to each element of a vector**]
+
+&lt;br&gt;
+
+* Easy to write
+
+* Easy to read
+
+* Can use with pipes
+
+* Clear what type of output you'll get
+
+* More consistent argument order
+
+---
+# map( ) overview
+
+.center[**Iterate - apply a function to each element of a vector**]
+--
+&lt;br&gt;
+map()
+&lt;br&gt;
+
+--
+&lt;br&gt;
+
+```r
+library(tidyverse)
+```
+
+---
+# map( ) overview
+
+
+```r
+df &lt;- tibble(
+  a = c(1:3), 
+  b = c(5,5,5), 
+  d = c(5.88, 7.88, 8.96)
+)
+df
+```
+
+```
+## # A tibble: 3 x 3
+##       a     b     d
+##   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     1     5  5.88
+## 2     2     5  7.88
+## 3     3     5  8.96
+```
+
+Take the mean of each element of the data frame
+
+
+```r
+mean(df$a)
+mean(df$b)
+mean(df$c)
+```
+
+---
+# map( ) overview
+
+
+
+```r
+df
+```
+
+```
+## # A tibble: 3 x 3
+##       a     b     d
+##   &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     1     5  5.88
+## 2     2     5  7.88
+## 3     3     5  8.96
+```
+
+```r
+map(df, mean)
+```
+
+```
+## $a
+## [1] 2
+## 
+## $b
+## [1] 5
+## 
+## $d
+## [1] 7.573333
+```
+---
+# map( ) overview
+
+```r
+map(df, mean)
+```
+
+map(vector, function)
+
+![image_map_workflow](images/map.png)
+
+.center[*nth element of the output is the result of applying the function to the nth element of the input vector*]
+
+---
+# map() overview
+
+map(vector, function)
+
+&lt;br&gt;
++ You can add extra arguments
+&lt;br&gt;
+map(vector, function, extraarg)
+&lt;br&gt;
+
+&gt; should name the extra arguments
+
+
+```r
+map(df, mean, trim = 0.5)
+```
+
+```
+## $a
+## [1] 2
+## 
+## $b
+## [1] 5
+## 
+## $d
+## [1] 7.88
+```
+
+---
+# map ( ) overview
+
+Use with pipes
+
+
+```r
+df %&gt;%
+  map(mean)
+```
+
+```
+## $a
+## [1] 2
+## 
+## $b
+## [1] 5
+## 
+## $d
+## [1] 7.573333
+```
+
+---
+# map( ) variations
+
+.center[
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; map_function &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; output_type &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; list &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map_chr() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; character &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map_dbl() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; double &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map_dfc() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; data frame (cbind) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map_dfr() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; data frame (rbind) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map_int() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; integer &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; map_lgl() &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; logical &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; walk &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; side effect &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+---
+# map( ) variations
+
+.pull-left[
+
+```r
+map(df, mean)
+```
+
+```
+## $a
+## [1] 2
+## 
+## $b
+## [1] 5
+## 
+## $d
+## [1] 7.573333
+```
+]
+
+.pull-right[
+
+```r
+map_dbl(df, mean)
+```
+
+```
+##        a        b        d 
+## 2.000000 5.000000 7.573333
+```
+]
+
+---
+# Expressions
+
+* In reality, map works with functions, shortcuts, and expressions
+
+## Expressions
+
+
+```r
+models &lt;- mtcars %&gt;% 
+  split(.$cyl) %&gt;% 
+* map(~ lm(mpg ~ wt, data = .x))
+```
+ * ~ means expression is coming
+ &lt;br&gt;
+ * replace the name of the thing to manipulate with .x wherever it appears
+ 
+---
+# map( ) shortcuts
+
+```r
+models
+```
+
+```
+## $`4`
+## 
+## Call:
+## lm(formula = mpg ~ wt, data = .x)
+## 
+## Coefficients:
+## (Intercept)           wt  
+##      39.571       -5.647  
+## 
+## 
+## $`6`
+## 
+## Call:
+## lm(formula = mpg ~ wt, data = .x)
+## 
+## Coefficients:
+## (Intercept)           wt  
+##       28.41        -2.78  
+## 
+## 
+## $`8`
+## 
+## Call:
+## lm(formula = mpg ~ wt, data = .x)
+## 
+## Coefficients:
+## (Intercept)           wt  
+##      23.868       -2.192
+```
+
+---
+# map( ) shortcuts
+
+work with every variation of map( )
+
+.pull-left[
+**name shortcut**
+
+```r
+models %&gt;%
+*map("coefficients")
+```
+
+```
+## $`4`
+## (Intercept)          wt 
+##   39.571196   -5.647025 
+## 
+## $`6`
+## (Intercept)          wt 
+##   28.408845   -2.780106 
+## 
+## $`8`
+## (Intercept)          wt 
+##   23.868029   -2.192438
+```
+
+]
+
+.pull-right[
+**integer shortcut**
+
+```r
+models %&gt;%
+* map(1)
+```
+
+```
+## $`4`
+## (Intercept)          wt 
+##   39.571196   -5.647025 
+## 
+## $`6`
+## (Intercept)          wt 
+##   28.408845   -2.780106 
+## 
+## $`8`
+## (Intercept)          wt 
+##   23.868029   -2.192438
+```
+
+]
+---
+# map2( )
+
+* Use when the arguments of the function are elements of 2 vectors
+
+map2(vector1, vector2, function)
+
+![image_map2_workflow](images/map2.png)
+
+* Can pass extra arguments just as with map( )
+
+* Same variants as map, according to the type of output
+
+* For expressions, refer to elements of first vector as .x and elements of second vector as .y
+
+---
+# pmap ( )
+
+* Use to map over 3 or more vectors
+
+* Requires a single argument -&gt; a list of vectors 
+
+pmap(list(vector1, vector2, vector3), function)
+
+![image_pmap_workflow](images/pmap.png)
+* Same variations as map( ) and map2( ), according to the type of output
+
+* For expressions, refer to elements of first vector as ..1, elements of second vector as ..2, and so on.
+
+---
+# invoke_map( )
+
+* Iterate over a vector of functions followed by a vector of arguments 
+
+![image_invoke_map_workflow](images/invoke_map.png)
+
+
+
+
+---
+
+# More resources
+
+&lt;br&gt;
+
+[Iteration Primers](https://rstudio.cloud/learn/primers/5)
+
+[purrr Cheat Sheet](https://rstudio.cloud/learn/cheat-sheets)
+
+[Advanced R - map functions](https://adv-r.hadley.nz/functionals.html)
+
+[Jenny Bryan's purrr Tutorial](https://jennybc.github.io/purrr-tutorial/)
+
+[Rebbeca Barter's purrr Tutorial](http://www.rebeccabarter.com/blog/2019-08-19_purrr/)
+
+[Jannik Buhr's purrr Tutorial](https://jmbuhr.de/dataIntro20/lectures/lecture4/)
+
+---
+class: center, middle
+
+# Thanks!
+
+Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
